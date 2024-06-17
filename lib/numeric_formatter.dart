@@ -61,6 +61,58 @@ class ThousandsFormatter extends NumberInputFormatter {
   }
 }
 
+class ThousandsFormatter2 extends NumberInputFormatter {
+  static final NumberFormat _formatter = NumberFormat.decimalPattern();
+
+  final FilteringTextInputFormatter _decimalFormatter;
+  final String _decimalSeparator;
+  final RegExp _decimalRegex;
+
+  final NumberFormat? formatter;
+  final bool allowFraction;
+
+  ThousandsFormatter2({this.formatter, this.allowFraction = false})
+      : _decimalSeparator = (formatter ?? _formatter).symbols.DECIMAL_SEP,
+        _decimalRegex = RegExp(allowFraction
+            ? '[0-9]+([${(formatter ?? _formatter).symbols.DECIMAL_SEP}]?[0-9]*)?'
+            : r'\d+'),
+        _decimalFormatter = FilteringTextInputFormatter.allow(RegExp(allowFraction
+            ? '[0-9]+([${(formatter ?? _formatter).symbols.DECIMAL_SEP}]?[0-9]*)?'
+            : r'\d+'));
+
+  @override
+  String _formatPattern(String? digits) {
+    if (digits == null || digits.isEmpty) return '';
+
+    // Split the input into integer and decimal parts
+    List<String> parts = digits.split(_decimalSeparator);
+    String integerPart = parts[0];
+    String decimalPart = parts.length > 1 ? parts[1] : '';
+
+    // Parse the integer part
+    num integerNumber = int.tryParse(integerPart) ?? 0;
+    String formattedInteger = (formatter ?? _formatter).format(integerNumber);
+
+    // If allowFraction is true and there's a decimal part, process it
+    if (allowFraction && decimalPart.isNotEmpty) {
+      return '$formattedInteger$_decimalSeparator$decimalPart';
+    }
+
+    return formattedInteger;
+  }
+
+  @override
+  TextEditingValue _formatValue(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return _decimalFormatter.formatEditUpdate(oldValue, newValue);
+  }
+
+  @override
+  bool _isUserInput(String s) {
+    return s == _decimalSeparator || _decimalRegex.firstMatch(s) != null;
+  }
+}
+
 ///
 /// An implementation of [NumberInputFormatter] that converts a numeric input
 /// to credit card number form (4-digit grouping). For example, a input of
