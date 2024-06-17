@@ -32,7 +32,7 @@ class ThousandsFormatter extends NumberInputFormatter {
   String _formatPattern(String? digits) {
     if (digits == null || digits.isEmpty) return '';
     num number;
-    if (allowFraction) {
+    if (allowFraction && digits.endsWith(_decimalSeparator)) {
       String decimalDigits = digits;
       if (_decimalSeparator != '.') {
         decimalDigits = digits.replaceFirst(RegExp(_decimalSeparator), '.');
