@@ -87,8 +87,7 @@ class ThousandsFormatter3 extends NumberInputFormatter {
     // Split the input into integer and decimal parts
     List<String> parts = digits.split(_decimalSeparator);
     String integerPart = parts[0];
-    String decimalPart =
-        digits.endsWith(_decimalSeparator) && parts.length > 1 ? parts[1] : '';
+    String decimalPart = parts.length > 1 ? parts[1] : '';
     // num number;
     num integerNumber = int.tryParse(integerPart) ?? 0;
     String formattedInteger = (formatter ?? _formatter).format(integerNumber);
