@@ -41,7 +41,8 @@ class ThousandsFormatter extends NumberInputFormatter {
     } else {
       number = int.tryParse(digits) ?? 0;
     }
-    final result = (formatter ?? _formatter).format(number);
+    // final result = (formatter ?? _formatter).format(number);
+    final result = number.toString();
     if (allowFraction && digits.endsWith(_decimalSeparator)) {
       return '$result$_decimalSeparator';
     }
