@@ -92,7 +92,8 @@ class ThousandsFormatter3 extends NumberInputFormatter {
     // num number;
     num integerNumber = int.tryParse(integerPart) ?? 0;
     String formattedInteger = (formatter ?? _formatter).format(integerNumber);
-    if (allowFraction && digits.endsWith(_decimalSeparator)) {
+    if (allowFraction &&
+        (digits.endsWith(_decimalSeparator) || parts.length > 1)) {
       return "$formattedInteger$_decimalSeparator$decimalPart";
     }
     return formattedInteger;
