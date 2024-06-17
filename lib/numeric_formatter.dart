@@ -32,7 +32,7 @@ class ThousandsFormatter extends NumberInputFormatter {
   String _formatPattern(String? digits) {
     if (digits == null || digits.isEmpty) return '';
     num number;
-    if (allowFraction && digits.endsWith(_decimalSeparator)) {
+    if (allowFraction) {
       String decimalDigits = digits;
       if (_decimalSeparator != '.') {
         decimalDigits = digits.replaceFirst(RegExp(_decimalSeparator), '.');
@@ -41,12 +41,77 @@ class ThousandsFormatter extends NumberInputFormatter {
     } else {
       number = int.tryParse(digits) ?? 0;
     }
-    // final result = (formatter ?? _formatter).format(number);
-    final result = number.toString();
+    final result = (formatter ?? _formatter).format(number);
+    // final result = number.toString();
     if (allowFraction && digits.endsWith(_decimalSeparator)) {
       return '$result$_decimalSeparator';
     }
     return result;
+  }
+
+  @override
+  TextEditingValue _formatValue(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return _decimalFormatter.formatEditUpdate(oldValue, newValue);
+  }
+
+  @override
+  bool _isUserInput(String s) {
+    return s == _decimalSeparator || _decimalRegex.firstMatch(s) != null;
+  }
+}
+
+class ThousandsFormatter3 extends NumberInputFormatter {
+  static final NumberFormat _formatter = NumberFormat.decimalPattern();
+
+  final FilteringTextInputFormatter _decimalFormatter;
+  final String _decimalSeparator;
+  final RegExp _decimalRegex;
+
+  final NumberFormat? formatter;
+  final bool allowFraction;
+
+  ThousandsFormatter3({this.formatter, this.allowFraction = false})
+      : _decimalSeparator = (formatter ?? _formatter).symbols.DECIMAL_SEP,
+        _decimalRegex = RegExp(allowFraction
+            ? '[0-9]+([${(formatter ?? _formatter).symbols.DECIMAL_SEP}]?[0-9]*)?'
+            : r'\d+'),
+        _decimalFormatter = FilteringTextInputFormatter.allow(RegExp(allowFraction
+            ? '[0-9]+([${(formatter ?? _formatter).symbols.DECIMAL_SEP}]?[0-9]*)?'
+            : r'\d+'));
+
+  @override
+  String _formatPattern(String? digits) {
+    if (digits == null || digits.isEmpty) return '';
+
+    // Split the input into integer and decimal parts
+    List<String> parts = digits.split(_decimalSeparator);
+    String integerPart = parts[0];
+    String decimalPart =
+        digits.endsWith(_decimalSeparator) && parts.length > 1 ? parts[1] : '';
+    // num number;
+    num integerNumber = int.tryParse(integerPart) ?? 0;
+    String formattedInteger = (formatter ?? _formatter).format(integerNumber);
+    if (allowFraction && digits.endsWith(_decimalSeparator)) {
+      return "$formattedInteger$_decimalSeparator$decimalPart";
+    }
+    return formattedInteger;
+
+    // if (allowFraction) {
+    //   String decimalDigits = digits;
+    //   if (_decimalSeparator != '.') {
+    //     decimalDigits = digits.replaceFirst(RegExp(_decimalSeparator), '.');
+    //   }
+    //   number = double.tryParse(decimalDigits) ?? 0.0;
+    // } else {
+    //   number = int.tryParse(digits) ?? 0;
+    // }
+    // final result = (formatter ?? _formatter).format(integerPart);
+    // // final result = number.toString();
+    // if (allowFraction && digits.endsWith(_decimalSeparator)) {
+    //   return '$result$_decimalSeparator';
+    // }
+    // return result;
   }
 
   @override
