@@ -93,7 +93,9 @@ class ThousandsFormatter2 extends NumberInputFormatter {
     String formattedInteger = (formatter ?? _formatter).format(integerNumber);
 
     // If allowFraction is true and there's a decimal part, process it
-    if (allowFraction && decimalPart.isNotEmpty) {
+    if (allowFraction &&
+        digits.endsWith(_decimalSeparator) &&
+        decimalPart.isNotEmpty) {
       return '$formattedInteger$_decimalSeparator$decimalPart';
     }
 
